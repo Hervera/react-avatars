@@ -66,11 +66,28 @@
     border-radius: 5px;
     border: none;
     color: #fff;
+    cursor: pointer;
   }
+
+  #fileerror {
+    color: #ea0808;
+    text-align: center;
+    display: block;
+    margin: 10px;
+}
 
   .list-avatars {
     text-align: center;
-    margin: 100px;
+    margin: 10px 100px 100px
+  }
+
+  .list-avatars.mt-100 {
+      margin-top: 100px;
+  }
+
+  ul.list{
+    background: #4e92fe0d;
+    /* text-align: left; */
   }
 
   ul.list li {
@@ -78,18 +95,29 @@
     vertical-align: top;
     list-style: none;
     list-style-type: none;
+    /* background: #4e92fe0d; */
+    margin: 20px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
   }
 
   ul.list li img {
     width: 100px;
     height: 100px;
-    margin: 20px;
+    margin: 0 auto 15px;
     display: block;
+    border-radius: 100%;
 }
 
-#fileerror {
-    color: #ea0808;
-    text-align: center;
-    display: block;
+/* ul.list li {
+    text-transform: lowercase;
+} */
+
+.loading-gif {
+    width: 50px;
+    height: 50px;
     margin: 10px;
+    margin: 0 auto;
+    display: block;
 }
