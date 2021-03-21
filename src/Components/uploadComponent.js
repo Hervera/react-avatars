@@ -105,7 +105,7 @@ export const UploadComponent = () => {
 
             // Resize the uploaded image
             reader.readAsArrayBuffer(files[0]);
-            reader.onloadend = function (event) {
+            reader.onload = function (event) {
                 // blob stuff
                 let blob = new Blob([event.target.result]); // create blob...
                 window.URL = window.URL || window.webkitURL;
@@ -240,7 +240,6 @@ export const UploadComponent = () => {
                 <div className="uploaded-image">
                     <img src="https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png" id="image-upload" className="image" alt="default avatar"/> 
                 </div>
-                <label id="fileerror"></label>
                 {imgBlob && <button className="save-btn" onClick={saveFile}>Save avatar</button>}
             </div>
 
