@@ -1,64 +1,64 @@
-/* eslint-disable jsx-a11y/label-has-for */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import firebase from 'firebase';
 import db from '../firebase';
 import moment from 'moment';
 import LoadingGif from '../assets/img/loadingBlue.gif';
 
-function removeSpaces (Text) {
+const removeSpaces = (Text) => {
     return Text
         .toLowerCase()
         .replace(/\s/g,'-')
 }
-export class UploadComponent extends Component {
-    state = {
-        imgBlob: '',
-        showLoadingGif: false,
-        allAvatars: []
-    };
 
-    componentDidMount() {
+export const UploadComponent = () => {
+
+    const [imgBlob, setImgBlob] = useState('');
+    const [showLoadingGif, setShowLoadingGif] = useState(false);
+    const [allAvatars, setAllAvatars] = useState([]);
+
+    useEffect(() => {
         const dropArea = document.getElementById("drop-area");
         ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-        dropArea.addEventListener(eventName, this.preventDefaults, false);
+            dropArea.addEventListener(eventName, preventDefaults, false);
         });
 
         ["dragenter", "dragover"].forEach(eventName => {
-        dropArea.addEventListener(eventName, this.highlight, false);
+            dropArea.addEventListener(eventName, highlight, false);
         });
 
         ["dragleave", "drop"].forEach(eventName => {
-        dropArea.addEventListener(eventName, this.unHightLight, false);
+            dropArea.addEventListener(eventName, unHightLight, false);
         });
 
-        dropArea.addEventListener("drop", this.handleDrop, false);
+        dropArea.addEventListener("drop", handleDrop, false);
 
+        getAllAvatars();
 
-        this.getAllAvatars();
-    }
-    componentWillUnmount() {
-        const dropArea = document.getElementById("drop-area");
-        ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-        dropArea.removeEventListener(eventName, this.preventDefaults, false);
-        });
+        return () => {
+            const dropArea = document.getElementById("drop-area");
+            ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+                dropArea.removeEventListener(eventName, preventDefaults, false);
+            });
+    
+            ["dragenter", "dragover"].forEach(eventName => {
+                dropArea.removeEventListener(eventName, highlight, false);
+            });
+    
+            ["dragleave", "drop"].forEach(eventName => {
+                dropArea.removeEventListener(eventName, unHightLight, false);
+            });
+    
+            dropArea.removeEventListener("drop", handleDrop, false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-        ["dragenter", "dragover"].forEach(eventName => {
-        dropArea.removeEventListener(eventName, this.highlight, false);
-        });
-
-        ["dragleave", "drop"].forEach(eventName => {
-        dropArea.removeEventListener(eventName, this.unHightLight, false);
-        });
-
-        dropArea.removeEventListener("drop", this.handleDrop, false);
-    }
-    preventDefaults = e => {
+    const preventDefaults = e => {
         e.preventDefault();
         e.stopPropagation();
     };
 
-    highlight = () => {
+    const highlight = () => {
         const ele = document.querySelector(".upload-label");
         if (ele) {
         ele.style.backgroundColor = "#e9e9e9";
@@ -66,7 +66,7 @@ export class UploadComponent extends Component {
         }
     };
 
-    unHightLight = () => {
+    const unHightLight = () => {
         const ele = document.querySelector(".upload-label");
         if (ele) {
         ele.style.backgroundColor = "#f6f6f6";
@@ -74,25 +74,25 @@ export class UploadComponent extends Component {
         }
     };
 
-    handleDrop = e => {
+    const handleDrop = e => {
         const dt = e.dataTransfer;
         const { files } = dt;
-        this.handleFiles(files);
+        handleFiles(files);
     };
 
-    handleFiles = files => {
+    const handleFiles = files => {
         let reader = new FileReader();
-        if(this.validateImage(files[0])) {
+        if(validateImage(files[0])) {
             reader.readAsDataURL(files[0]);
             reader.onloadend = (e) => {
                 document.getElementById('fileerror').innerHTML = '';
-                this.setState({ imgBlob: files[0]})
+                setImgBlob(files[0])
                 document.getElementById("image-upload").src = e.target.result;
             };
         }
     };
 
-    validateImage = (image) => {
+    const validateImage = (image) => {
 
         // check the type
         const allowedFileTypes = ["image/png", "image/jpeg", "image/gif"];
@@ -111,37 +111,36 @@ export class UploadComponent extends Component {
     }
 
 
-    saveFile = async (e) => {
+    const saveFile = async (e) => {
         e.preventDefault();
-        this.setState({ showLoadingGif: true });
+        setShowLoadingGif(true);
         try {
-            const { imgBlob } = this.state;
             if(imgBlob) {
                 let imageName = Date.now() + removeSpaces(imgBlob.name);
                 const storageRef = firebase.storage().ref();
                 const fileRef = storageRef.child(`/avatars/${imageName}`);
                 fileRef.put(imgBlob).then(snapshot => {
                     snapshot.ref.getDownloadURL().then(async url => {
-                        await this.saveItemToDB(url, imageName);
+                        await saveItemToDB(url, imageName);
                     });
-                    this.setState({ showLoadingGif: false });
+                    setShowLoadingGif(false);
                 }).catch((error) => {
                     document.getElementById('fileerror').innerHTML = error.message;
-                    this.setState({ showLoadingGif: false });
+                    setShowLoadingGif(false);
                 });
             } 
             
             document.getElementById("image-upload")
             .src = "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png";
-            this.setState({ imgBlob: ''});
+            setImgBlob('');
             
         } catch(error) {
-            this.setState({ showLoadingGif: false });
+            setShowLoadingGif(false);
             console.log('error:', error);
         }
     }
 
-    saveItemToDB = async (url, imageName) => {
+    const saveItemToDB = async (url, imageName) => {
         let data = {
             imageName,
             imageUrl: url,
@@ -150,13 +149,13 @@ export class UploadComponent extends Component {
         try {
             const avatarRef = db.firestore().collection('avatars');
             await avatarRef.add(data);
-            await this.getAllAvatars();
+            await getAllAvatars();
         } catch(error) {
             console.log('error:', error);
         }
     }
 
-    getAllAvatars = async () => {
+    const getAllAvatars = async () => {
         try {
             const avatarRef = db.firestore().collection('avatars');
             const snapshot = (await avatarRef.get()).docs;
@@ -168,57 +167,55 @@ export class UploadComponent extends Component {
             allAvatars = Object.keys(avatars).map((key) => {
                 return { id: key, ...avatars[key]};
             });
-            return this.setState({ allAvatars });
+            return setAllAvatars(allAvatars);
         } catch(error) {
             console.log('error:', error);
         }
     }
 
-    render() {
-        let { imgBlob, allAvatars, showLoadingGif } = this.state;
 
-        // Sort avatars by datetime
-        if(allAvatars.length > 0) {
-            allAvatars.sort(function(x, y){
-                return y.createdAt - x.createdAt;
-            })
-        }
-
-        return (
-            <div className="avatars-app">
-                <div id="drop-area">
-                    <input
-                    type="file"
-                    id="fileElem"
-                    accept="image/*"
-                    onChange={e => {
-                        this.handleFiles(e.target.files);
-                    }}
-                    />
-                    <label className="upload-label" htmlFor="fileElem">
-                    <div className="upload-text">Drag and Drop your photo here or click to upload</div>
-                    </label>
-                    <div className="uploaded-image">
-                        <img src="https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png" id="image-upload" className="image" alt="default avatar"/> 
-                    </div>
-                    <label id="fileerror"></label>
-                    {imgBlob && <button className="save-btn" onClick={this.saveFile}>Save avatar</button>}
-                </div>
-
-                {showLoadingGif && <img src={LoadingGif} alt="loading image" className="loading-gif"/> }
-
-                <div className={`list-avatars ${!showLoadingGif ? 'mt-100': ''}`}>
-                    <h2>List of avatars</h2>
-                    <ul className="list">
-                        {allAvatars.map((item, index)=> {
-                            return (<li key={index}>
-                                <img src={item.imageUrl} id={`image-${item.id}`} alt="avatar"/> 
-                                <label className="date-uploaded">{moment(item.createdAt).format('LLL')}</label>
-                            </li>)
-                        })}
-                    </ul>
-                </div>
-            </div>
-        );
+    // Sort avatars by datetime
+    if(allAvatars.length > 0) {
+        allAvatars.sort(function(x, y){
+            return y.createdAt - x.createdAt;
+        })
     }
+
+    return (
+        <div className="avatars-app">
+            <div id="drop-area">
+                <input
+                type="file"
+                id="fileElem"
+                accept="image/*"
+                onChange={e => {
+                    handleFiles(e.target.files);
+                }}
+                />
+                <label className="upload-label" htmlFor="fileElem">
+                <div className="upload-text">Drag and Drop your photo here or click to upload</div>
+                </label>
+                <div className="uploaded-image">
+                    <img src="https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png" id="image-upload" className="image" alt="default avatar"/> 
+                </div>
+                <label id="fileerror"></label>
+                {imgBlob && <button className="save-btn" onClick={saveFile}>Save avatar</button>}
+            </div>
+
+            {showLoadingGif && <img src={LoadingGif} alt="loading" className="loading-gif"/> }
+
+            <div className={`list-avatars ${!showLoadingGif ? 'mt-100': ''}`}>
+                <h2>List of avatars</h2>
+                <ul className="list">
+                    {allAvatars.map((item, index)=> {
+                        return (<li key={index}>
+                            <img src={item.imageUrl} id={`image-${item.id}`} alt="avatar"/> 
+                            <label className="date-uploaded">{moment(item.createdAt).format('LLL')}</label>
+                        </li>)
+                    })}
+                </ul>
+            </div>
+        </div>
+    );
+    
 }
