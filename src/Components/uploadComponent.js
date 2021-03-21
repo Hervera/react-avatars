@@ -80,18 +80,6 @@ export const UploadComponent = () => {
         handleFiles(files);
     };
 
-    const handleFiles = files => {
-        let reader = new FileReader();
-        if(validateImage(files[0])) {
-            reader.readAsDataURL(files[0]);
-            reader.onloadend = (e) => {
-                document.getElementById('fileerror').innerHTML = '';
-                setImgBlob(files[0])
-                document.getElementById("image-upload").src = e.target.result;
-            };
-        }
-    };
-
     const validateImage = (image) => {
 
         // check the type
@@ -108,6 +96,59 @@ export const UploadComponent = () => {
             return false;
         }
         return true;
+    }
+
+    const handleFiles = files => {
+        let reader = new FileReader();
+        if(validateImage(files[0])) {
+            document.getElementById('fileerror').innerHTML = '';
+
+            // Resize the uploaded image
+            reader.readAsArrayBuffer(files[0]);
+            reader.onloadend = function (event) {
+                // blob stuff
+                let blob = new Blob([event.target.result]); // create blob...
+                window.URL = window.URL || window.webkitURL;
+                let blobURL = window.URL.createObjectURL(blob); // and get it's URL
+
+                let image = new Image();
+                image.src = blobURL;
+                image.onload = function() {
+                    var resized = resizeMe(image); // send it to canvas
+                    var file = dataURLtoFile(resized,files[0].name);
+                    setImgBlob(file)
+                    document.getElementById("image-upload").src = resized;
+                }
+            };
+        }
+    };
+
+    const dataURLtoFile = (dataurl, filename) => {
+ 
+        var arr = dataurl.split(','),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), 
+            n = bstr.length, 
+            u8arr = new Uint8Array(n);
+            
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        
+        return new File([u8arr], filename, {type:mime});
+    }
+    
+  
+
+    // RESIZE: conversion to avatar 100x100
+    function resizeMe(img) {    
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext("2d");
+        canvas.width=100;
+        canvas.height=100;
+        ctx.drawImage(img,0,0,img.width,img.height,0,0,100,100);
+        // get the data from canvas as 100% JPG (can be also PNG, etc.)
+        return canvas.toDataURL("image/jpeg",1); 
     }
 
 
@@ -129,7 +170,8 @@ export const UploadComponent = () => {
                     setShowLoadingGif(false);
                 });
             } 
-            
+
+            // defaults
             document.getElementById("image-upload")
             .src = "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png";
             setImgBlob('');
