@@ -1,122 +1,133 @@
 .avatars-app {
-    width: 100%;
+  width: 100%;
 }
 
 .App {
-    font-family: sans-serif;
-    text-align: center;
-  }
-  #drop-area {
-    position: relative;
-    width: 500px;
-    margin: 20px auto;
-    border: 1px #00000031 solid;
-  }
-  
-  #fileElem {
-    display: none;
-  }
-  
-  .upload-label {
-    padding: 10px;
-    cursor: pointer;
-    border-radius: 6px;
-    min-width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f6f6f6;
-  }
-  .upload-label:hover {
-    background-color: #e9e9e9;
-  }
-  
-  .upload-label:active {
-    background-color: #f6f6f6;
-  }
-  
-  .upload-text {
-    color: #666;
-    user-select: none;
-  }
-  
-  .image {
-    /* min-width: auto;
-    max-width: 200px; */
-    /* height: 140px; */
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    border-radius: 100%;
-    height: 100px;
-    width: 100px;
-    margin: 20px auto;
-    display: block;
-  }
-  
-  .save-btn {
-    width: 100px;
-    height: 30px;
-    margin: 20px auto;
-    display: block;
-    background-color:#306bff;
-    border-radius: 5px;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-  }
-
-  #fileerror {
-    color: #ea0808;
-    text-align: center;
-    display: block;
-    margin: 10px;
+  font-family: sans-serif;
+  text-align: center;
 }
 
-  .list-avatars {
-    text-align: center;
-    margin: 10px 100px 100px
-  }
-
-  .list-avatars.mt-100 {
-      margin-top: 100px;
-  }
-
-  ul.list{
-    background: #4e92fe0d;
-    /* text-align: left; */
-  }
-
-  ul.list li {
-    display: inline-block;
-    vertical-align: top;
-    list-style: none;
-    list-style-type: none;
-    /* background: #4e92fe0d; */
-    margin: 20px;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  ul.list li img {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 15px;
-    display: block;
-    border-radius: 100%;
+#drop-area {
+  position: relative;
+  width: 50%;
+  margin: 20px auto;
+  border: 1px #00000031 solid;
+  background: #fff
 }
 
-/* ul.list li {
-    text-transform: lowercase;
-} */
+#fileElem {
+  display: none;
+}
+
+.upload-label {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f6f6f6;
+}
+.upload-label:hover {
+  background-color: #e9e9e9;
+}
+
+.upload-label:active {
+  background-color: #f6f6f6;
+}
+
+.upload-text {
+  color: #666;
+  user-select: none;
+}
+
+.image {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  border-radius: 100%;
+  height: 100px;
+  width: 100px;
+  margin: 20px auto;
+  display: block;
+}
+
+.save-btn {
+  width: 100px;
+  height: 30px;
+  margin: 20px auto;
+  display: block;
+  background-color:#306bff;
+  border-radius: 5px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+#fileerror {
+  color: #ea0808;
+  text-align: center;
+  display: block;
+  margin: 10px;
+}
+
+.list-avatars {
+  text-align: center;
+  margin: 10px 100px 100px
+}
+
+.list-avatars.mt-100 {
+    margin-top: 100px;
+}
+
+ul.list {
+  padding: 0;
+}
+
+ul.list li {
+  display: inline-block;
+  vertical-align: top;
+  list-style: none;
+  margin: 10px;
+  cursor: pointer;
+}
+
+.list-avatars li {
+  list-style-type: none !important;
+  width: 20% !important;
+  text-align: center !important;
+} 
+
+li {
+  list-style-type: none;
+  background-color: #ffffff;
+  border-radius: 20px;
+  border: 1px #00000031 solid;
+}
+
+ul li img {
+  width: 100px;
+  height: 100px;
+}
+
+li img { 
+  border-radius: 100% !important;
+  margin: 15px auto 15px !important;
+  display: block !important;
+}
 
 label.date-uploaded {
   font-size: 12px;
-  color: #333;
+  color:#848181;
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 800;
 }
 
 .loading-gif {

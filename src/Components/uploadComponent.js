@@ -3,6 +3,8 @@ import firebase from 'firebase';
 import db from '../firebase';
 import moment from 'moment';
 import LoadingGif from '../assets/img/loadingBlue.gif';
+import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 
 const removeSpaces = (Text) => {
     return Text
@@ -84,17 +86,20 @@ export const UploadComponent = () => {
 
         // check the type
         const allowedFileTypes = ["image/png", "image/jpeg", "image/gif"];
-        if (allowedFileTypes.indexOf(image.type) === -1) {
+        if (image && allowedFileTypes.indexOf(image.type) === -1) {
             document.getElementById('fileerror').innerHTML = 'Invalid File Type';
+            showDefaults()
             return false;
         }
 
         // check the size
         let maxSizeInBytes = 4e6; // 4MB
-        if (image.size > maxSizeInBytes) {
+        if (image && image.size > maxSizeInBytes) {
             document.getElementById('fileerror').innerHTML = 'File too large, should not be more than 5MB in size';
+            showDefaults()
             return false;
         }
+
         return true;
     }
 
@@ -105,7 +110,7 @@ export const UploadComponent = () => {
 
             // Resize the uploaded image
             reader.readAsArrayBuffer(files[0]);
-            reader.onload = function (event) {
+            reader.onloadend = function (event) {
                 // blob stuff
                 let blob = new Blob([event.target.result]); // create blob...
                 window.URL = window.URL || window.webkitURL;
@@ -138,7 +143,6 @@ export const UploadComponent = () => {
         return new File([u8arr], filename, {type:mime});
     }
     
-  
 
     // RESIZE: conversion to avatar 100x100
     function resizeMe(img) {    
@@ -172,14 +176,18 @@ export const UploadComponent = () => {
             } 
 
             // defaults
-            document.getElementById("image-upload")
-            .src = "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png";
-            setImgBlob('');
+            showDefaults();
             
         } catch(error) {
             setShowLoadingGif(false);
             console.log('error:', error);
         }
+    }
+
+    const showDefaults = () => {
+        document.getElementById("image-upload")
+        .src = "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png";
+        setImgBlob('');
     }
 
     const saveItemToDB = async (url, imageName) => {
@@ -209,6 +217,12 @@ export const UploadComponent = () => {
             allAvatars = Object.keys(avatars).map((key) => {
                 return { id: key, ...avatars[key]};
             });
+            // Sort avatars by datetime
+            if(allAvatars.length > 0) {
+                allAvatars.sort(function(x, y){
+                    return y.createdAt - x.createdAt;
+                })
+            }
             return setAllAvatars(allAvatars);
         } catch(error) {
             console.log('error:', error);
@@ -216,23 +230,28 @@ export const UploadComponent = () => {
     }
 
 
-    // Sort avatars by datetime
-    if(allAvatars.length > 0) {
-        allAvatars.sort(function(x, y){
-            return y.createdAt - x.createdAt;
-        })
-    }
+    const SortableContainer = sortableContainer(({ children }) => <ul className="list">{children}</ul>);
+    
+    //Draggable elements
+    const SortableItem = sortableElement(({ item }) => (
+        <li key={item.id}>
+            <img src={item.imageUrl} id={`image-${item.id}`} alt="avatar"/> 
+            <label className="date-uploaded">{moment(item.createdAt).format('LLL')}</label>
+        </li>
+    ));
+
+    const onSortEnd = ({ oldIndex, newIndex }) => setAllAvatars(arrayMove(allAvatars, oldIndex, newIndex));
 
     return (
         <div className="avatars-app">
             <div id="drop-area">
                 <input
-                type="file"
-                id="fileElem"
-                accept="image/*"
-                onChange={e => {
-                    handleFiles(e.target.files);
-                }}
+                    type="file"
+                    id="fileElem"
+                    accept="image/*"
+                    onChange={e => {
+                        handleFiles(e.target.files);
+                    }}
                 />
                 <label className="upload-label" htmlFor="fileElem">
                 <div className="upload-text">Drag and Drop your photo here or click to upload</div>
@@ -240,6 +259,7 @@ export const UploadComponent = () => {
                 <div className="uploaded-image">
                     <img src="https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png" id="image-upload" className="image" alt="default avatar"/> 
                 </div>
+                <label id="fileerror"></label>
                 {imgBlob && <button className="save-btn" onClick={saveFile}>Save avatar</button>}
             </div>
 
@@ -247,14 +267,17 @@ export const UploadComponent = () => {
 
             <div className={`list-avatars ${!showLoadingGif ? 'mt-100': ''}`}>
                 <h2>List of avatars</h2>
-                <ul className="list">
+                <SortableContainer axis="x" onSortEnd={onSortEnd}>
                     {allAvatars.map((item, index)=> {
-                        return (<li key={index}>
-                            <img src={item.imageUrl} id={`image-${item.id}`} alt="avatar"/> 
-                            <label className="date-uploaded">{moment(item.createdAt).format('LLL')}</label>
-                        </li>)
+                        return (
+                            <SortableItem 
+                                key={`item-${index}`} 
+                                index={index} 
+                                item={item} 
+                            />
+                        )
                     })}
-                </ul>
+                </SortableContainer>
             </div>
         </div>
     );
